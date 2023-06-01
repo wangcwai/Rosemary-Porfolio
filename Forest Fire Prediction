@@ -1,0 +1,1468 @@
+{
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/wangcwai/Rosemary-Porfolio/blob/main/Forest%20Fire%20Prediction\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "Final Exam"
+      ],
+      "metadata": {
+        "id": "B7GH6P-lsc27"
+      }
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "Ztt2D-JS8eHn"
+      },
+      "source": [
+        "# **Data Understanding and project goal**\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "GvZ7I8z1CMFw"
+      },
+      "source": [
+        "Attribute Information:\n",
+        "\n",
+        "\n",
+        "*   Date : (DD/MM/YYYY) Day, month ('june' to 'september'), year (2012)\n",
+        "*   List item\n",
+        "\n",
+        "\n",
+        "Weather data observations: \n",
+        "\n",
+        "\n",
+        "\n",
+        "*   Temp : temperature noon (temperature max) in Celsius degrees: 22 to 42\n",
+        "*   RH : Relative Humidity in %: 21 to 90\n",
+        "*   Ws :Wind speed in km/h: 6 to 29\n",
+        "*   Rain: total day in mm: 0 to 16.8\n",
+        "*   List item\n",
+        "*   List item\n",
+        "\n",
+        "\n",
+        "FWI Components:\n",
+        "\n",
+        "\n",
+        "*   Fine Fuel Moisture Code (FFMC) index from the FWI system: 28.6 to 92.5\n",
+        "*   Duff Moisture Code (DMC) index from the FWI system: 1.1 to 65.9\n",
+        "*   Drought Code (DC) index from the FWI system: 7 to 220.4\n",
+        "*   Initial Spread Index (ISI) index from the FWI system: 0 to 18.5\n",
+        "*   Buildup Index (BUI) index from the FWI system: 1.1 to 68\n",
+        "*   Fire Weather Index (FWI) Index: 0 to 31.1\n",
+        "*   Classes: two classes, namely Fire and not Fire\n",
+        "\n",
+        "\n",
+        "\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "p3Q53RDw1iB7"
+      },
+      "source": [
+        "# **1.Data Preprocessing**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "yjt1nL-juI7F"
+      },
+      "outputs": [],
+      "source": [
+        "import numpy as np # linear algebra\n",
+        "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+        "\n",
+        "\n",
+        "import os\n",
+        "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+        "    for filename in filenames:\n",
+        "        print(os.path.join(dirname, filename))\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "mVV0Gly-uPLH"
+      },
+      "outputs": [],
+      "source": [
+        "import pandas as pd\n",
+        "import numpy as np\n",
+        "import matplotlib.pyplot as plt\n",
+        "import seaborn as sns\n",
+        "from sklearn.model_selection import train_test_split\n",
+        "from sklearn.preprocessing import StandardScaler\n",
+        "from sklearn.linear_model import LinearRegression\n",
+        "from sklearn.linear_model import ElasticNet\n",
+        "from sklearn.linear_model import Lasso\n",
+        "from sklearn.linear_model import Ridge\n",
+        "from sklearn.metrics import r2_score\n",
+        "from sklearn.metrics import mean_squared_error\n",
+        "from sklearn.metrics import mean_absolute_error\n",
+        "from warnings import filterwarnings\n",
+        "filterwarnings('ignore')\n",
+        "%matplotlib inline"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "5vBz-cXfuTPw"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df=pd.read_csv(r\"/content/Algerian_forest_fires_dataset_UPDATE.csv\",header=1)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "QyXwInPeug6e"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.head()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "kH81_nZ0w4t7"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.info()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "PPjtY-bKw8Tv"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.isnull().sum()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "it59irAbuibL"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.dtypes"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "8VmvYk62wtNB"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.columns"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Gu52LhgKw_kG"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.iloc[121:125,:]"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "4FrA1JthxDbO"
+      },
+      "source": [
+        "# **2.2 Data Cleaning**"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7ZJPuLPMzN64"
+      },
+      "source": [
+        "Dropping row no 1 and 122 specifying region name & 123 respecifying the header"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "lphRMXnxzB39"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.drop([1,122,123],inplace=True)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "pWCba8gvzMwA"
+      },
+      "source": [
+        "Resetting the index and dropping the index column"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "IWEIPkcFzQKw"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.reset_index(inplace=True)\n",
+        "forest_fires_df.drop('index',axis=1,inplace=True)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EnZWqc154SU-"
+      },
+      "source": [
+        "Creating a new column called Region representing [0:- Bejaia and 1- Sidi Bel-abbes]"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "z_-Tkx8K4TWT"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.loc[:122,\"Region\"]=0\n",
+        "forest_fires_df.loc[122:,\"Region\"]=1"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "hMk1fX7vz1Jm"
+      },
+      "source": [
+        "Checking the Column Headers"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "amS17q7Uz3GJ"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.columns"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ER2bqDAJz6LV"
+      },
+      "source": [
+        "Removing unnecessary space in column headers using str.strip()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "8HVozYctz7BZ"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.columns=forest_fires_df.columns.str.strip()\n",
+        "forest_fires_df.columns"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "pZy0FpTEz-4J"
+      },
+      "source": [
+        "Dropping rows with null values"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "aX-aRemt0AnQ"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.dropna(inplace=True)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "2PV7dSR80DgH"
+      },
+      "source": [
+        "Converting the necessary column dataye to int"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "RFVW8u_V0DRu"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.dtypes"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "bD6o_4Bt0Ide"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df[['day', 'month', 'year', 'Temperature', 'RH', 'Ws','Region']]= forest_fires_df[['day', 'month', 'year', 'Temperature', 'RH', 'Ws','Region']].astype(int)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "AlIA7_N80stM"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.dtypes"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "evh-6Od60vjA"
+      },
+      "source": [
+        "Values in df[Classes] has unnecessary spaces that are removed by str.strip()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gbLHrWI40ze1"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.Classes.unique()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "sC4v8osb02WE"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.Classes=forest_fires_df.Classes.str.strip()\n",
+        "forest_fires_df.Classes.unique()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "EI20ZqP-fHc4"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df[\"Classes\"].value_counts()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0cZBodjm1IuX"
+      },
+      "source": [
+        "Converting the Necessary Column Datatype to Float"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gQxsGucD1J31"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.columns"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "IeSrZTU51Ln_"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df[['Rain', 'FFMC','DMC', 'DC', 'ISI', 'BUI', 'FWI']]=forest_fires_df[['Rain', 'FFMC','DMC', 'DC', 'ISI', 'BUI', 'FWI']].astype('float')"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ApwGAuOV1NmD"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.dtypes"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "RKJsP5OO1Qtp"
+      },
+      "source": [
+        "Dropping the year column as the data is for the same year"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "oL8shNPG1ROV"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_1=forest_fires_df.drop(['year'],axis=1)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "9h9TZtyU1UbF"
+      },
+      "source": [
+        "DataFrame Description"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "adXlDnYO1U7C"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_1.describe().T"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "UCRaZUW4fYSs"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df.head()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0_UTSEKy64HU"
+      },
+      "source": [
+        "# **3. Exploratory Data Analysis**\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "J4ctaAlh67cP"
+      },
+      "source": [
+        "Encoding not fire as 0 and Fire as 1"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "AjUjlXujIYSW"
+      },
+      "outputs": [],
+      "source": [
+        "# Encoding Not fire as 0 and Fire as 1\n",
+        "forest_fires_df_1['Classes']= np.where(forest_fires_df['Classes']== 'not fire',0,1)\n",
+        "forest_fires_df_1.head(10)\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "mM94nATXRI4F"
+      },
+      "outputs": [],
+      "source": [
+        "# Check counts\n",
+        "forest_fires_df_1.Classes.value_counts()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "NIrXKq507z2L"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_1.corr()"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "81ZiQ8ME6CoY"
+      },
+      "source": [
+        "# **Explain**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "hEQeczYG8IR3"
+      },
+      "outputs": [],
+      "source": [
+        "sns.pairplot(forest_fires_df_1)\n"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "rvgmhJn75-Y3"
+      },
+      "source": [
+        "# **Explain**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "H5CAfVkk8sao"
+      },
+      "outputs": [],
+      "source": [
+        "sns.set(rc={'figure.figsize':(15,10)})\n",
+        "sns.heatmap(forest_fires_df_1.corr(),annot=True) "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ULo_GuAzC-5M"
+      },
+      "source": [
+        "Report\n",
+        "\n",
+        "\n",
+        "*   RH is negatively corelated with Temperature, FFMC and ISI\n",
+        "*   Rain is negatively correlated with Temperature and FFMC,DMC, ISI and BUI\n",
+        "\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "TcP37pmUDLw7"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_1.columns"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "BkebRAwYFK6Q"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_1.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Ll9MTAZHgOQ3"
+      },
+      "outputs": [],
+      "source": [
+        "# PLot density plot for all features\n",
+        "#plt.style.use('seaborn')\n",
+        "forest_fires_df_1.hist(bins=50, figsize=(20,15), ec = 'b')\n",
+        "plt.show()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "O5xpSuHqgVWQ"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "# Percentage for PieChart\n",
+        "percentage = forest_fires_df_1.Classes.value_counts(normalize=True)*100\n",
+        "percentage\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "US_2HroWy8kL"
+      },
+      "source": [
+        "sns.countplot('Classes',data='forest_fires_df_1', palette=\"tab10\")\n",
+        "plt.title('Class Distributions \\n 0: No Fire || 1: Fire', fontsize=14)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "7le7kahg5KXE"
+      },
+      "outputs": [],
+      "source": [
+        "#plotting PieChart\n",
+        "classeslabels = [\"FIRE\", \"NOT FIRE\"]\n",
+        "plt.figure(figsize =(12, 7))\n",
+        "plt.pie(percentage,labels = classeslabels,autopct='%1.1f%%')  \n",
+        "plt.title (\"Pie Chart of Classes\", fontsize = 15)\n",
+        "plt.show() "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "7zRDJwnO52Jk"
+      },
+      "source": [
+        "# **Monthwise Fire Analysis (might not be useful)**"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "0E8vjXMTq9EL"
+      },
+      "source": [
+        "# **Checking Multicollinearity**\n",
+        "\n",
+        "Multicollinearity occurs when there are two or more independent variables in a multiple regression model, which have a high correlation among themselves.\n",
+        "\n",
+        "When some features are highly correlated, we might have difficulty in distinguishing between their individual effects on the dependent variable.\n",
+        "\n",
+        "Multicollinearity can be detected using various techniques, one such technique being the Variance Inflation Factor(VIF).\n",
+        "\n",
+        "Multicollinearity occurs when there are two or more independent variables in a multiple regression model, which have a high correlation among themselves.\n",
+        "\n",
+        "When some features are highly correlated, we might have difficulty in distinguishing between their individual effects on the dependent variable.\n",
+        "\n",
+        "Multicollinearity can be detected using various techniques, one such technique being the Variance Inflation Factor(VIF)."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "EjUjZsjHrxlV"
+      },
+      "outputs": [],
+      "source": [
+        "x = forest_fires_df_1.iloc[:, 0:12]\n",
+        "y = forest_fires_df_1['Classes']"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "l75ovVZfrzbD"
+      },
+      "outputs": [],
+      "source": [
+        "x.head(10)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "X5_B5e5jr1ZM"
+      },
+      "outputs": [],
+      "source": [
+        "y.head(10)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "whUDBUQCrTY1"
+      },
+      "outputs": [],
+      "source": [
+        "from statsmodels.stats.outliers_influence import variance_inflation_factor\n",
+        "\n",
+        "vif_data = pd.DataFrame()\n",
+        "vif_data[\"feature\"] = x.columns\n",
+        "\n",
+        "vif_data[\"VIF\"] = [variance_inflation_factor(x.values,i)\n",
+        "                        for i in range(len(x.columns))]\n",
+        "print(vif_data) "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "lVFV8rp2_v7s"
+      },
+      "source": [
+        "# **Model Building-Classification**\n",
+        "\n",
+        "Classification\n",
+        "\n",
+        "For Classification Classes is dependent feature which is a Binary Classification(fire, not fire)\n",
+        "\n",
+        "\n",
+        "Model Used:\n",
+        "\n",
+        "Logistic Regression\n",
+        "Decision Tree\n",
+        "Random Forest\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "8wG9pTHRsTZZ"
+      },
+      "outputs": [],
+      "source": [
+        "from sklearn.linear_model import LogisticRegression\n",
+        "from sklearn.metrics import classification_report\n",
+        "from sklearn.metrics import accuracy_score\n",
+        "from sklearn.metrics import ConfusionMatrixDisplay\n",
+        "from sklearn.neighbors import KNeighborsClassifier\n",
+        "from xgboost import XGBClassifier"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "2p71Z2kVwEDu"
+      },
+      "outputs": [],
+      "source": [
+        "forest_fires_df_2 = forest_fires_df_1.drop(['day','month'], axis=1)\n",
+        "forest_fires_df_2.head(10)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "vxaXB4-Av---"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "forest_fires_df_2.head()"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "mw2VpIycwioi"
+      },
+      "outputs": [],
+      "source": [
+        "X = forest_fires_df_2.iloc[:, 0:10]\n",
+        "y = forest_fires_df_2['Classes']"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Ikth0TX8wovT"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "X.head(10)\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "qHHgNnQwqAse"
+      },
+      "outputs": [],
+      "source": [
+        "y.head(10)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "4rK-6PEvwtOV"
+      },
+      "outputs": [],
+      "source": [
+        "# separate dataset into train and test\n",
+        "X_train, X_test, y_train, y_test = train_test_split(X,y,test_size=0.2,random_state=0)\n",
+        "X_train.shape, X_test.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "nVurK5Dbww6f"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "X_train.columns"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ilJCSIQGRKlQ"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "def correlation(dataset, threshold):\n",
+        "    col_corr = set()\n",
+        "    corr_matrix = dataset.corr()\n",
+        "    for i in range(len(corr_matrix.columns)):\n",
+        "        for j in range(i):\n",
+        "            if abs(corr_matrix.iloc[i, j]) > threshold: \n",
+        "                colname = corr_matrix.columns[i]\n",
+        "                col_corr.add(colname)\n",
+        "    return col_corr"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "JyABVpE9wzL1"
+      },
+      "outputs": [],
+      "source": [
+        "corr_features = correlation(X_train, 0.8)\n",
+        "corr_features\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "j9t7vD31w1Mh"
+      },
+      "outputs": [],
+      "source": [
+        "X_train.drop(corr_features,axis=1, inplace=True)\n",
+        "X_test.drop(corr_features,axis=1, inplace=True)\n",
+        "X_train.shape, X_test.shape"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "MXDHlLDmRREl"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "def scaler_standard(X_train, X_test):\n",
+        "    scaler = StandardScaler()\n",
+        "    X_train_scaled = scaler.fit_transform(X_train)\n",
+        "    X_test_scaled = scaler.transform(X_test)\n",
+        "    \n",
+        "    return X_train_scaled, X_test_scaled"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "tiFxgD6_w3YY"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "X_train_scaled, X_test_scaled = scaler_standard(X_train, X_test)"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "EdL8SV41ti8f"
+      },
+      "source": [
+        "# **Logistic Regression**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "b_pEUXTYtl8f"
+      },
+      "outputs": [],
+      "source": [
+        "# Import Logistic Regression to Train from SKlearn\n",
+        "Logistic_Regression  = LogisticRegression()\n",
+        "Logistic_Regression.fit(X_train_scaled,y_train)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "kYoVqlKztqdI"
+      },
+      "outputs": [],
+      "source": [
+        "print('Intercept is :',Logistic_Regression.intercept_)\n",
+        "print('Coefficient is :',Logistic_Regression.coef_)\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "4zYdu621twYg"
+      },
+      "outputs": [],
+      "source": [
+        "print(\"Training Score:\",Logistic_Regression.score(X_train_scaled, y_train))\n",
+        "print(\"Test Score:\",Logistic_Regression.score(X_test_scaled,y_test))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "yW-_LA5wtzOg"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "Logistic_Regression_Prediction = Logistic_Regression.predict(X_test_scaled)\n",
+        "Logistic_Regression_Prediction\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Y9D8pLk8t5or"
+      },
+      "outputs": [],
+      "source": [
+        "Actual_predicted = pd.DataFrame({'Actual': y_test, 'Predicted': Logistic_Regression_Prediction})    \n",
+        "Actual_predicted"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "TSPXyQcuxJXT"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "Score = accuracy_score(y_test,Logistic_Regression_Prediction)\n",
+        "Classification_Report = classification_report(y_test,Logistic_Regression_Prediction)\n",
+        "\n",
+        "print(\"Logistic Regression\")\n",
+        "print (\"Accuracy Score: {:.4f}\".format(Score))\n",
+        "print (Classification_Report)\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "GIQFqXSMxFNa"
+      },
+      "source": [
+        "\n",
+        "# **Metrics\tDefinition**\n",
+        "Precision: Precision is defined as the ratio of true positives to the sum of true and false positives.\n",
+        "\n",
+        "\n",
+        "---\n",
+        "\n",
+        "\n",
+        "Recall:\tRecall is defined as the ratio of true \n",
+        "positives to the sum of true positives and false negatives.\n",
+        "\n",
+        "\n",
+        "---\n",
+        "\n",
+        "\n",
+        "F1 Score:\tThe F1 is the weighted harmonic mean of precision and recall. The closer the value of the F1 score is to 1.0, the better the expected performance of the model is."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Vib4zbuuz84k"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "Logistic_Regression_Confusion_Matrix = ConfusionMatrixDisplay.from_estimator(Logistic_Regression, X_test_scaled, y_test)\n",
+        "Logistic_Regression_Confusion_Matrix"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "ULIg7rqLz-cW"
+      },
+      "source": [
+        "# **Decision Tree**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "pqwM0ds80CXo"
+      },
+      "outputs": [],
+      "source": [
+        "from sklearn.tree import DecisionTreeClassifier\n",
+        "from sklearn import tree\n",
+        "Decision_Tree_Classifier = DecisionTreeClassifier()\n",
+        "Decision_Tree_Classifier.fit(X_train_scaled,y_train)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "MrTYv5Jd0Fli"
+      },
+      "outputs": [],
+      "source": [
+        "Decision_Tree_Classifier_prediction = Decision_Tree_Classifier.predict(X_test_scaled)\n",
+        "Decision_Tree_Classifier_prediction"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "9nhR5vqP0HH-"
+      },
+      "outputs": [],
+      "source": [
+        "Actual_predicted = pd.DataFrame({'Actual': y_test, 'Predicted': Decision_Tree_Classifier_prediction})    \n",
+        "Actual_predicted"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "9JyRvFZ30L48"
+      },
+      "outputs": [],
+      "source": [
+        "\n",
+        "Score = accuracy_score(y_test,Decision_Tree_Classifier_prediction)\n",
+        "Classification_Report = classification_report(y_test,Decision_Tree_Classifier_prediction)\n",
+        "\n",
+        "print(\"Decision Tree\")\n",
+        "print (\"Accuracy Score: {:.4f}\".format(Score))\n",
+        "print (Classification_Report)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "ecPTZR7r0Npj"
+      },
+      "outputs": [],
+      "source": [
+        "Decision_Tree_Classifier_Confusion_Matrix = ConfusionMatrixDisplay.from_estimator(Decision_Tree_Classifier, X_test_scaled, y_test)\n",
+        "Decision_Tree_Classifier_Confusion_Matrix"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "Fl_lC9D60PbL"
+      },
+      "outputs": [],
+      "source": [
+        "plt.figure(figsize = (10,5))\n",
+        "tree.plot_tree(Decision_Tree_Classifier,filled = True)\n",
+        "plt.show()\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "QrLXN7ti0RYQ"
+      },
+      "source": [
+        "# **Random Forest**"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "u1t_lbKv0TlZ"
+      },
+      "outputs": [],
+      "source": [
+        "from sklearn.ensemble import RandomForestClassifier\n",
+        "\n",
+        "Random_Forest_Classifier = RandomForestClassifier()\n",
+        "Random_Forest_Classifier.fit(X_train_scaled,y_train)\n",
+        "     "
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "gJ0XfEbI0XBc"
+      },
+      "outputs": [],
+      "source": [
+        "print(\"Training Score:\",Random_Forest_Classifier.score(X_train_scaled, y_train))\n",
+        "print(\"Test Score:\",Random_Forest_Classifier.score(X_test_scaled,y_test))"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "TUULc8Lm0X0e"
+      },
+      "outputs": [],
+      "source": [
+        "Random_Forest_Classifier_prediction = Random_Forest_Classifier.predict(X_test_scaled)\n",
+        "Random_Forest_Classifier_prediction"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "tqxB5t4d0Z-1"
+      },
+      "outputs": [],
+      "source": [
+        "Actual_predicted = pd.DataFrame({'Actual': y_test, 'Predicted ': Random_Forest_Classifier_prediction})    \n",
+        "Actual_predicted"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "_4b8F0QB0ccY"
+      },
+      "outputs": [],
+      "source": [
+        "Score = accuracy_score(y_test,Random_Forest_Classifier_prediction)\n",
+        "Classification_Report = classification_report(y_test,Random_Forest_Classifier_prediction)\n",
+        "\n",
+        "print(\"Random Forest\")\n",
+        "print (\"Accuracy Score: {:.4f}\".format(Score))\n",
+        "print (Classification_Report)"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "vcmWrhr-0eSH"
+      },
+      "outputs": [],
+      "source": [
+        "Random_Forest_Classifier_Confusion_Matrix = ConfusionMatrixDisplay.from_estimator(Random_Forest_Classifier, X_test_scaled, y_test)\n",
+        "Random_Forest_Classifier_Confusion_Matrix"
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **5. Model Selection**"
+      ],
+      "metadata": {
+        "id": "UxCqbk_BsoN5"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "from sklearn.model_selection import StratifiedKFold, cross_val_score\n",
+        "skfold = StratifiedKFold(n_splits= 10,shuffle= True,random_state= 0)"
+      ],
+      "metadata": {
+        "id": "7bLFd_aP3iFO"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "cv_rf=cross_val_score(Random_Forest_Classifier,X,y,cv=skfold,scoring=\"accuracy\").mean()\n",
+        "print('CV Score Random Forest {:.4f}'.format(cv_rf))\n",
+        "     "
+      ],
+      "metadata": {
+        "id": "3-stK1wS3x0z"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "cv_dt =cross_val_score(Decision_Tree_Classifier,X,y,cv= skfold,scoring=\"accuracy\").mean()\n",
+        "print('CV Score Decision Tree {:.4f}'.format(cv_dt))"
+      ],
+      "metadata": {
+        "id": "PI3oUCdv34kW"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "\n",
+        "cv_lg=cross_val_score(Logistic_Regression,X,y,cv=skfold,scoring=\"accuracy\").mean()\n",
+        "print('CV Score Logistic Regression {:.4f}'.format(cv_lg))"
+      ],
+      "metadata": {
+        "id": "DD4YlFWc5764"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "l5qyM1AC9aQ3"
+      },
+      "source": [
+        "# **Feature Selection**\n",
+        "\n",
+        "In feature selection will select only 5 important feature that will be important in order to make the prediction.\n",
+        "\n",
+        "\n",
+        "\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "\n",
+        "feature_importances = Random_rf.best_estimator_.feature_importances_\n",
+        "importance_df = pd.DataFrame({\n",
+        "    'feature': X_train.columns,\n",
+        "    'importance': feature_importances\n",
+        "}).sort_values('importance', ascending=False)\n",
+        "importance_df"
+      ],
+      "metadata": {
+        "id": "nBoEAPd2k3Ji",
+        "outputId": "2d309e43-0020-48cd-c0ca-0aa8b74bd4a2",
+        "colab": {
+          "base_uri": "https://localhost:8080/",
+          "height": 242
+        }
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "error",
+          "ename": "NameError",
+          "evalue": "ignored",
+          "traceback": [
+            "\u001b[0;31m---------------------------------------------------------------------------\u001b[0m",
+            "\u001b[0;31mNameError\u001b[0m                                 Traceback (most recent call last)",
+            "\u001b[0;32m<ipython-input-1-d648c1c16a9e>\u001b[0m in \u001b[0;36m<cell line: 1>\u001b[0;34m()\u001b[0m\n\u001b[0;32m----> 1\u001b[0;31m \u001b[0mfeature_importances\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mRandom_rf\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mbest_estimator_\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mfeature_importances_\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m      2\u001b[0m importance_df = pd.DataFrame({\n\u001b[1;32m      3\u001b[0m     \u001b[0;34m'feature'\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mX_train\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mcolumns\u001b[0m\u001b[0;34m,\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      4\u001b[0m     \u001b[0;34m'importance'\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0mfeature_importances\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m      5\u001b[0m }).sort_values('importance', ascending=False)\n",
+            "\u001b[0;31mNameError\u001b[0m: name 'Random_rf' is not defined"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "markdown",
+      "source": [
+        "# **6.Model Deployment**"
+      ],
+      "metadata": {
+        "id": "kFizl9_hjVjo"
+      }
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "X_train.columns"
+      ],
+      "metadata": {
+        "id": "dRvOPZYIjXBG"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "Index(['Temperature', 'RH', 'Ws', 'Rain', 'FFMC', 'DMC', 'ISI'], dtype='object')\n",
+        "\n",
+        "X_train_new = X_train.drop(['Rain', 'RH'], axis=1)\n",
+        "X_test_new = X_test.drop(['Rain', 'RH'], axis=1)"
+      ],
+      "metadata": {
+        "id": "iCY7ya3xjjvZ"
+      },
+      "execution_count": null,
+      "outputs": []
+    },
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "UfV8iDokFJg_"
+      },
+      "source": [
+        "---------\n"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "id": "4HMBlRlwDRRe"
+      },
+      "outputs": [],
+      "source": [
+        "plt.scatter(forest_fires_df_1['FFMC'],forest_fires_df_1['Temperature'])\n",
+        "plt.xlabel(\"FFMC\")\n",
+        "plt.ylabel(\"Temperature\")"
+      ]
+    }
+  ],
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "display_name": "Python 3",
+      "name": "python3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "nbformat": 4,
+  "nbformat_minor": 0
+}
